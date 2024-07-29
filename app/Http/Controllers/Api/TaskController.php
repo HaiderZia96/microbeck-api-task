@@ -24,10 +24,10 @@ class TaskController extends Controller
     {
 
         // validation rules
-        $rules = ['name' => 'required', 'room_id' => 'required|int|exists:rooms,id', 'status' => 'required|int', 'durability' => 'required|int',];
+        $rules = ['name' => 'required', 'room_id' => 'required|int|exists:rooms,id', 'durability' => 'required|int',];
 
         // validation messages
-        $messages = ['name.required' => 'Please enter a name.', 'room_id.required' => 'Please enter a room id.', 'status.required' => 'Please enter a status.', 'durability.required' => 'Please enter a durability.',];
+        $messages = ['name.required' => 'Please enter a name.', 'room_id.required' => 'Please enter a room id.', 'durability.required' => 'Please enter a durability.',];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -66,10 +66,10 @@ class TaskController extends Controller
     {
 
         // validation rules
-        $rules = ['name' => 'required', 'room_id' => 'required|int|exists:rooms,id', 'status' => 'required|int', 'durability' => 'required|int',];
+        $rules = ['name' => 'required', 'room_id' => 'required|int|exists:rooms,id',  'durability' => 'required|int',];
 
         // validation messages
-        $messages = ['name.required' => 'Please enter a name.', 'room_id.required' => 'Please enter a room id.', 'status.required' => 'Please enter a status.', 'durability.required' => 'Please enter a durability.',];
+        $messages = ['name.required' => 'Please enter a name.', 'room_id.required' => 'Please enter a room id.', 'durability.required' => 'Please enter a durability.',];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -145,7 +145,7 @@ class TaskController extends Controller
         $rules = ['member' => 'required', 'status' => 'required|int',];
 
         // validation messages
-        $messages = ['member.required' => 'Please enter a name.', 'status.required' => 'Please enter a status.',];
+        $messages = ['member.required' => 'Please enter a member name.', 'status.required' => 'Please enter a status.',];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
