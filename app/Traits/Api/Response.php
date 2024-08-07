@@ -14,25 +14,34 @@ trait Response
 
 
         $appName = Config::get('apiResponse.message' . '.' . $data["status_code"]);
+
         if (isset($data["code"])) {
             $appName = Config::get('apiResponse.message' . '.' . $data["code"]);
         }
 
 
-        $this->status = ['status_code' => (!isset($data['status_code'])) ? '' : $data['status_code'],];
+        $this->status = ['status_code' => (!isset($data['status_code'])) ? '' : $data['status_code']];
 
-        $this->response = [
-            'status_code' => (!isset($data['code'])) ? $data['status_code'] : $data['code'],
-            'message' => (!isset($data['response'])) ? [] : $appName,
-            'api_status' => [
-                'success'=>(!isset($data['success']))?[]:$data['success'],
-                'error'=>(!isset($data['error']))?[]:$data['error'],
-                'info'=>(!isset($data['info']))?[]:$data['info'],
-                'warning'=>(!isset($data['warning']))?[]:$data['warning']
-            ],
-            'data' => (!isset($data['data'])) ? [] : $data['data']
 
-        ];
+        if (isset($data['auth_token'])) {
+            $this->response = [
+                'success'=> (isset($data['code']) && ($data['code'] == '100200'))? true : false,
+                'message' =>(!isset($data['success']))?[]:$data['success'][0],
+                'token' => (!isset($data['auth_token'])) ? [] :$data['auth_token'],
+                'data' => (!isset($data['data'])) ? [] : $data['data']
+            ];
+        }
+        else{
+            $this->response = [
+                'success'=> (isset($data['code']) && ($data['code'] == '100200'))? true : false,
+                'message' =>(!isset($data['success']))?[]:$data['success'][0],
+                'data' => (!isset($data['data'])) ? [] : $data['data']
+            ];
+
+        }
+
+
+//        dd($this->response);
 
         return $this->response;
 

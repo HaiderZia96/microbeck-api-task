@@ -23,10 +23,10 @@ class RoomController extends Controller
     {
 
         // validation rules
-        $rules = ['name' => 'required|unique:rooms,name',];
+        $rules = ['name' => 'required|unique:rooms,name'];
 
         // validation messages
-        $messages = ['name.required' => 'Please enter a name.', 'name.unique' => 'A room with this name already exists.',];
+        $messages = ['name.required' => 'Please enter a name.', 'name.unique' => 'A room with this name already exists.'];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -37,8 +37,10 @@ class RoomController extends Controller
             $collection = collect($this->dataArray);
             $this->dataArray = $collection->merge($errors);
 
-            // prepare response
-            $this->data = ['status_code' => 200, 'code' => 100499, 'response' => '', 'error' => $this->dataArray, 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100401, 'response' => '',
+                "success" => $this->dataArray,
+                'data' => []
+            ];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
@@ -53,7 +55,12 @@ class RoomController extends Controller
         $room = Room::where('name', $request->name)->first();
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record stored successfully', 'data' => $room];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '',
+            "success" =>["Record store successfully."],
+            'data' => [
+                $room
+            ]
+        ];
         $this->setResponse($this->data);
         return $this->getResponse();
     }
@@ -64,10 +71,18 @@ class RoomController extends Controller
      */
     public function edit(Request $request, string $id)
     {
-        // Validation rules
-        $rules = ['name' => 'required|unique:rooms,name,' . $id,
+        // find the room to update
+        $room = Room::find($id);
 
-        ];
+        if (!$room) {
+            // room not found
+            $this->data = ['status_code' => 200, 'code' => 100402, 'response' => '', 'success' => ['Room not found.'], 'data' => []];
+            $this->setResponse($this->data);
+            return $this->getResponse();
+        }
+
+        // Validation rules
+        $rules = ['name' => 'required|unique:rooms,name,' . $id];
 
         //validation messages
         $messages = ['name.required' => 'Please enter a name.', 'name.unique' => 'A room with this name already exists.',];
@@ -82,20 +97,20 @@ class RoomController extends Controller
             $this->dataArray = $collection->merge($errors);
 
             // prepare response
-            $this->data = ['status_code' => 200, 'code' => 100499, 'response' => '', 'error' => $this->dataArray, 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100401, 'response' => '', 'success' => $this->dataArray, 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
 
         // find the room to update
-        $room = Room::find($id);
-
-        if (!$room) {
-            // room not found
-            $this->data = ['status_code' => 404, 'code' => 100404, 'response' => '', 'error' => ['Room not found.'], 'data' => []];
-            $this->setResponse($this->data);
-            return $this->getResponse();
-        }
+//        $room = Room::find($id);
+//
+//        if (!$room) {
+//            // room not found
+//            $this->data = ['status_code' => 200, 'code' => 100402, 'response' => '', 'success' => ['Room not found.'], 'data' => []];
+//            $this->setResponse($this->data);
+//            return $this->getResponse();
+//        }
 
         // Update the room data
         $data = $request->all();
@@ -108,7 +123,7 @@ class RoomController extends Controller
         $updatedRoom = Room::find($id);
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record updated successfully', 'data' => $updatedRoom];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Record updated successfully'], 'data' => $updatedRoom];
         $this->setResponse($this->data);
         return $this->getResponse();
 
@@ -125,7 +140,7 @@ class RoomController extends Controller
 
         if (!$room) {
             // room not found
-            $this->data = ['status_code' => 404, 'code' => 100404, 'response' => '', 'error' => ['Room not found.'], 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100402, 'response' => '', 'success' => ['Room not found.'], 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
@@ -134,7 +149,7 @@ class RoomController extends Controller
         $data = $room->delete();
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record deleted successfully', 'data' => []];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Record deleted successfully'], 'data' => []];
         $this->setResponse($this->data);
         return $this->getResponse();
     }

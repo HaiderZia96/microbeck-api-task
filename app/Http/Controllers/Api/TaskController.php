@@ -39,22 +39,23 @@ class TaskController extends Controller
             $this->dataArray = $collection->merge($errors);
 
             // prepare response
-            $this->data = ['status_code' => 200, 'code' => 100499, 'response' => '', 'error' => $this->dataArray, 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100401, 'response' => '', 'success' => $this->dataArray, 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
 
         // store data
         $data = $request->all();
-        $data['created_by'] = Auth::id(); //authenticated user
+        $data['created_by'] = Auth::id();
+        $data['member'] =Auth::user()->name; //authenticated user
 
         Task::create($data);
 
         // fetch the newly created task
-        $task = Task::where('name', $request->name)->first();
+        $task = Task::where('name', $request->name)->orderBy('id', 'DESC')->first();
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record stored successfully', 'data' => $task];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Record stored successfully'], 'data' => $task];
         $this->setResponse($this->data);
         return $this->getResponse();
     }
@@ -64,12 +65,21 @@ class TaskController extends Controller
      */
     public function edit(Request $request, string $id)
     {
+        // find the task to update
+        $task = Task::find($id);
 
+
+        if (!$task) {
+            // task not found
+            $this->data = ['status_code' => 404, 'code' => 100402, 'response' => '', 'success' => ['Task not found.'], 'data' => []];
+            $this->setResponse($this->data);
+            return $this->getResponse();
+        }
         // validation rules
-        $rules = ['name' => 'required', 'room_id' => 'required|int|exists:rooms,id',  'durability' => 'required|int',];
+        $rules = [ 'room_id' => 'nullable|exists:rooms,id',  'durability' => 'required|int'];
 
         // validation messages
-        $messages = ['name.required' => 'Please enter a name.', 'room_id.required' => 'Please enter a room id.', 'durability.required' => 'Please enter a durability.',];
+        $messages = [ 'room_id.required' => 'Please enter a room id.', 'durability.required' => 'Please enter a durability.'];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -81,17 +91,7 @@ class TaskController extends Controller
             $this->dataArray = $collection->merge($errors);
 
             // prepare response
-            $this->data = ['status_code' => 200, 'code' => 100499, 'response' => '', 'error' => $this->dataArray, 'data' => []];
-            $this->setResponse($this->data);
-            return $this->getResponse();
-        }
-
-        // find the task to update
-        $task = Task::find($id);
-
-        if (!$task) {
-            // task not found
-            $this->data = ['status_code' => 404, 'code' => 100404, 'response' => '', 'error' => ['Task not found.'], 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100401, 'response' => '', 'success' => $this->dataArray, 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
@@ -99,6 +99,7 @@ class TaskController extends Controller
         // update the task data
         $data = $request->all();
         $data['updated_by'] = Auth::id(); //authenticated user
+        $data['member'] =Auth::user()->name; //authenticated user
 
 
         $task->update($data);
@@ -107,7 +108,7 @@ class TaskController extends Controller
         $updatedTask = Task::find($id);
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record updated successfully', 'data' => $updatedTask];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Record updated successfully'], 'data' => $updatedTask];
         $this->setResponse($this->data);
         return $this->getResponse();
 
@@ -125,7 +126,7 @@ class TaskController extends Controller
 
         if (!$task) {
             // task not found
-            $this->data = ['status_code' => 404, 'code' => 100404, 'response' => '', 'error' => ['Task not found.'], 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100402, 'response' => '', 'success' => ['Task not found.'], 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
@@ -134,18 +135,29 @@ class TaskController extends Controller
         $data = $task->delete();
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Record deleted successfully', 'data' => []];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Record deleted successfully'], 'data' => []];
         $this->setResponse($this->data);
         return $this->getResponse();
     }
 
     public function changeStatus(Request $request, string $id)
     {
+        // find the task to update
+        $task = Task::find($id);
+
+
+        if (!$task) {
+            // task not found
+            $this->data = ['status_code' => 200, 'code' => 100402, 'response' => '', 'success' => ['Task not found.'], 'data' => []];
+            $this->setResponse($this->data);
+            return $this->getResponse();
+        }
+
         // validation rules
-        $rules = ['member' => 'required', 'status' => 'required|int',];
+        $rules = ['status' => 'required|regex:/^[0-1]$/'];
 
         // validation messages
-        $messages = ['member.required' => 'Please enter a member name.', 'status.required' => 'Please enter a status.',];
+        $messages = ['status.required' => 'Please enter a status.', 'status.regex' => 'The enter status value is invalid. 0 : Pending and 1 : Complete' ];
 
         // perform validation
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -157,25 +169,23 @@ class TaskController extends Controller
             $this->dataArray = $collection->merge($errors);
 
             // prepare response
-            $this->data = ['status_code' => 200, 'code' => 100499, 'response' => '', 'error' => $this->dataArray, 'data' => []];
+            $this->data = ['status_code' => 200, 'code' => 100401, 'response' => '', 'success' => $this->dataArray, 'data' => []];
             $this->setResponse($this->data);
             return $this->getResponse();
         }
 
-        // find the task to update
-        $task = Task::find($id);
 
-        if (!$task) {
-            // task not found
-            $this->data = ['status_code' => 404, 'code' => 100404, 'response' => '', 'error' => ['Task not found.'], 'data' => []];
-            $this->setResponse($this->data);
-            return $this->getResponse();
-        }
 
         // update the task status
         $data = $request->all();
         $data['updated_by'] = Auth::id(); // authenticated user
 
+        if($request->has('member') && $request->get('member') !== null){
+            $data['member'] = $request->get('member');
+        }
+        else{
+            $data['member'] = $task['member'];
+        }
 
         $task->update($data);
 
@@ -183,7 +193,7 @@ class TaskController extends Controller
         $updatedTask = Task::find($id);
 
         // prepare response
-        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => 'Status updated successfully', 'data' => $updatedTask];
+        $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', 'success' => ['Status updated successfully'], 'data' => $updatedTask];
         $this->setResponse($this->data);
         return $this->getResponse();
 

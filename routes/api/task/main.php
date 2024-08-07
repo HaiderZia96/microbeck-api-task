@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'animal-rescue-app', 'middleware' => ['auth:sanctum']], function () {
     Route::post('task/create', [TaskController::class, 'create']);
-    Route::put('task/edit/{id}', [TaskController::class, 'edit']);
-    Route::delete('task/delete/{id}', [TaskController::class, 'destroy']);
+    Route::post('task/edit/{id}', [TaskController::class, 'edit']);
+    Route::post('task/delete/{id}', [TaskController::class, 'destroy']);
 
     Route::post('task/change-status/{id}', [TaskController::class, 'changeStatus']);
 });

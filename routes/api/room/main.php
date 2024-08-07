@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix' => 'animal-rescue-app', 'middleware' => ['auth:sanctum']], function () {
+
     Route::post('room/create', [RoomController::class, 'create']);
-    Route::put('room/edit/{id}', [RoomController::class, 'edit']);
-    Route::delete('room/delete/{id}', [RoomController::class, 'destroy']);
+    Route::post('room/edit/{id}', [RoomController::class, 'edit']);
+    Route::post('room/delete/{id}', [RoomController::class, 'destroy']);
+
 });
