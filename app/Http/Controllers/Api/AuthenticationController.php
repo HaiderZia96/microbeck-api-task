@@ -184,6 +184,8 @@ class AuthenticationController extends Controller
 
         $user->save();
 
+        $user->tokens()->delete();
+
         // Logout Successful
         $this->data = ['status_code' => 200, 'code' => 100200, 'response' => '', "success" => ["Logout Successfully."], 'data' => ['email' => $userEmail]];
         $this->setResponse($this->data);
